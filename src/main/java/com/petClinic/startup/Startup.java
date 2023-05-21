@@ -18,9 +18,10 @@ public class Startup implements CommandLineRunner {
     private final OwnerRepository ownerRepository;
 
     @Override
-    public void run(String... args) throws Exception {
-        loadPetData();
-        loadOwnerData();
+    public void run(String... args) {
+        petRepository.deleteAll().doOnSuccess(success -> loadPetData()).subscribe();
+        ownerRepository.deleteAll().doOnSuccess(success -> loadOwnerData()).subscribe();
+
     }
 
     private void loadPetData() {
