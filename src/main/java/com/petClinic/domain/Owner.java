@@ -1,5 +1,6 @@
 package com.petClinic.domain;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +12,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document
+@Document(collection = "owners")
 public class Owner {
 
     @Id
     private String id;
 
+    @NotBlank
     private String name;
 
     private String address;

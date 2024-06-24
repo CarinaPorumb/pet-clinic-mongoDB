@@ -1,5 +1,6 @@
 package com.petClinic.service;
 
+import com.petClinic.exception.NotFoundException;
 import com.petClinic.mapper.PetMapper;
 import com.petClinic.model.PetDTO;
 import com.petClinic.repository.PetRepository;
@@ -16,41 +17,44 @@ public class PetServiceImpl implements PetService {
     private final PetRepository petRepository;
     private final PetMapper petMapper;
 
+
     @Override
     public Mono<PetDTO> getById(String id) {
         return petRepository.findById(id)
-                .map(petMapper::petToPetDTO);
+                .map(petMapper::toDTO)
+                .switchIfEmpty(Mono.error(new NotFoundException("Pet not found with id " + id)));
     }
 
     @Override
     public Flux<PetDTO> listPets() {
-        return petRepository.findAll().map(petMapper::petToPetDTO);
+        return petRepository.findAll().map(petMapper::toDTO);
     }
 
     @Override
-    public Mono<PetDTO> savePetMono(Mono<PetDTO> dtoMono) {
-        return dtoMono.map(petMapper::petDTOToPet)
+    public Mono<PetDTO> createPetMono(Mono<PetDTO> dtoMono) {
+        return dtoMono.map(petMapper::toEntity)
                 .flatMap(petRepository::save)
-                .map(petMapper::petToPetDTO);
+                .map(petMapper::toDTO);
     }
 
     @Override
-    public Mono<PetDTO> savePet(PetDTO dto) {
-        return petRepository.save(petMapper.petDTOToPet(dto))
-                .map(petMapper::petToPetDTO);
+    public Mono<PetDTO> createPet(PetDTO dto) {
+        return petRepository.save(petMapper.toEntity(dto))
+                .map(petMapper::toDTO);
     }
 
     @Override
     public Mono<PetDTO> updatePet(String id, PetDTO dto) {
         return petRepository.findById(id)
-                .map(foundPet -> {
+                .flatMap(foundPet -> {
                     foundPet.setName(dto.getName());
                     foundPet.setPetType(dto.getPetType());
                     foundPet.setAge(dto.getAge());
                     foundPet.setBirthdate(dto.getBirthdate());
-                    return foundPet;
-                }).flatMap(petRepository::save)
-                .map(petMapper::petToPetDTO);
+                    return petRepository.save(foundPet);
+                })
+                .map(petMapper::toDTO)
+                .switchIfEmpty(Mono.error(new NotFoundException("Pet not found with id " + id)));
     }
 
     @Override
@@ -61,7 +65,7 @@ public class PetServiceImpl implements PetService {
     @Override
     public Mono<PetDTO> patchPet(String id, PetDTO dto) {
         return petRepository.findById(id)
-                .map(foundPet -> {
+                .flatMap(foundPet -> {
                     if (StringUtils.hasText(dto.getName())) {
                         foundPet.setName(dto.getName());
                     }
@@ -74,20 +78,23 @@ public class PetServiceImpl implements PetService {
                     if (dto.getBirthdate() != null) {
                         foundPet.setBirthdate(dto.getBirthdate());
                     }
-                    return foundPet;
-                }).flatMap(petRepository::save)
-                .map(petMapper::petToPetDTO);
+                    return petRepository.save(foundPet);
+                })
+                .map(petMapper::toDTO)
+                .switchIfEmpty(Mono.error(new NotFoundException("Pet not found with id " + id)));
     }
 
     @Override
     public Mono<PetDTO> findFirstByPetName(String name) {
         return petRepository.findFirstByName(name)
-                .map(petMapper::petToPetDTO);
+                .map(petMapper::toDTO)
+                .switchIfEmpty(Mono.error(new NotFoundException("Pet not found with name " + name)));
     }
 
     @Override
     public Flux<PetDTO> findByPetType(String type) {
         return petRepository.findByPetType(type)
-                .map(petMapper::petToPetDTO);
+                .map(petMapper::toDTO);
     }
+
 }

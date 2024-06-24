@@ -10,9 +10,9 @@ public interface OwnerService {
 
     Flux<OwnerDTO> listOwners();
 
-    Mono<OwnerDTO> saveOwnerMono(Mono<OwnerDTO> dtoMono);
+    Mono<OwnerDTO> createOwnerMono(Mono<OwnerDTO> dtoMono);
 
-    Mono<OwnerDTO> saveOwner(OwnerDTO dto);
+    Mono<OwnerDTO> createOwner(OwnerDTO dto);
 
     Mono<OwnerDTO> updateOwner(String id, OwnerDTO dto);
 

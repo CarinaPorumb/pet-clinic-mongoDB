@@ -4,11 +4,11 @@ import com.petClinic.domain.Pet;
 import com.petClinic.model.PetDTO;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface PetMapper {
 
-    PetDTO petToPetDTO(Pet pet);
+    PetDTO toDTO(Pet pet);
 
-    Pet petDTOToPet(PetDTO dto);
+    Pet toEntity(PetDTO dto);
 
 }

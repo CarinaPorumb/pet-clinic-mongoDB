@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -23,7 +23,6 @@ public class PetDTO {
 
     private Integer age;
 
-    @CreatedDate
     private LocalDate birthdate;
 
 }

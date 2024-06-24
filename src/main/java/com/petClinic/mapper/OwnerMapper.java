@@ -4,11 +4,11 @@ import com.petClinic.domain.Owner;
 import com.petClinic.model.OwnerDTO;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface OwnerMapper {
 
-    OwnerDTO ownerToOwnerDTO(Owner owner);
+    OwnerDTO toDTO(Owner owner);
 
-    Owner ownerDTOToOwner(OwnerDTO dto);
+    Owner toEntity(OwnerDTO dto);
 
 }

@@ -7,6 +7,8 @@ import com.petClinic.repository.PetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 
@@ -19,69 +21,71 @@ public class Startup implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        petRepository.deleteAll().doOnSuccess(success -> loadPetData()).subscribe();
-        ownerRepository.deleteAll().doOnSuccess(success -> loadOwnerData()).subscribe();
-
+        loadInitialData()
+                .subscribe();
     }
 
-    private void loadPetData() {
-        petRepository.count().subscribe(count -> {
-            if (count == 0) {
-                Pet pet1 = Pet.builder()
-                        .name("Rocco")
-                        .petType("Cat")
-                        .age(2)
-                        .birthdate(LocalDate.now())
-                        .build();
-
-                Pet pet2 = Pet.builder()
-                        .name("Yoda")
-                        .petType("Bird")
-                        .age(5)
-                        .birthdate(LocalDate.now())
-                        .build();
-
-                Pet pet3 = Pet.builder()
-                        .name("Nyx")
-                        .petType("Dog")
-                        .age(3)
-                        .birthdate(LocalDate.now())
-                        .build();
-
-                petRepository.save(pet1).subscribe();
-                petRepository.save(pet2).subscribe();
-                petRepository.save(pet3).subscribe();
-            }
-        });
-
+    private Mono<Void> loadInitialData() {
+        return petRepository.deleteAll()
+                .thenMany(loadPetData())
+                .thenMany(ownerRepository.deleteAll())
+                .thenMany(loadOwnerData())
+                .then();
     }
 
-    private void loadOwnerData() {
+    private Flux<Pet> loadPetData() {
+        return petRepository.count()
+                .filter(count -> count == 0)
+                .flatMapMany(count -> {
+                    Pet rocco = Pet.builder()
+                            .name("Rocco")
+                            .petType("Cat")
+                            .age(2)
+                            .birthdate(LocalDate.now())
+                            .build();
 
-        ownerRepository.count().subscribe(count -> {
-            if (count == 0) {
-                Owner owner1 = Owner.builder()
-                        .name("Owner 1")
-                        .address("Grasse")
-                        .telephone("1234")
-                        .build();
+                    Pet yoda = Pet.builder()
+                            .name("Yoda")
+                            .petType("Bird")
+                            .age(5)
+                            .birthdate(LocalDate.now())
+                            .build();
 
-                Owner owner2 = Owner.builder()
-                        .name("Owner 2")
-                        .address("Lisbon")
-                        .telephone("4321")
-                        .build();
+                    Pet nyx = Pet.builder()
+                            .name("Nyx")
+                            .petType("Dog")
+                            .age(3)
+                            .birthdate(LocalDate.now())
+                            .build();
 
-                Owner owner3 = Owner.builder()
-                        .name("Owner 3")
-                        .address("Amboise")
-                        .telephone("0123")
-                        .build();
+                    return petRepository.saveAll(Flux.just(rocco, yoda, nyx));
+                });
+    }
 
-                ownerRepository.save(owner1).subscribe();
-                ownerRepository.save(owner2).subscribe();
-                ownerRepository.save(owner3).subscribe();
-            }
-        });
+
+    private Flux<Owner> loadOwnerData() {
+        return ownerRepository.count()
+                .filter(count -> count == 0)
+                .flatMapMany(count -> {
+                    Owner owner1 = Owner.builder()
+                            .name("Owner 1")
+                            .address("Grasse")
+                            .telephone("1234")
+                            .build();
+
+                    Owner owner2 = Owner.builder()
+                            .name("Owner 2")
+                            .address("Lisbon")
+                            .telephone("4321")
+                            .build();
+
+                    Owner owner3 = Owner.builder()
+                            .name("Owner 3")
+                            .address("Amboise")
+                            .telephone("0123")
+                            .build();
+
+                    return ownerRepository.saveAll(Flux.just(owner1, owner2, owner3));
+                });
     }
 }

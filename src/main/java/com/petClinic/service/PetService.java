@@ -10,9 +10,9 @@ public interface PetService {
 
     Flux<PetDTO> listPets();
 
-    Mono<PetDTO> savePetMono(Mono<PetDTO> dtoMono);
+    Mono<PetDTO> createPetMono(Mono<PetDTO> dtoMono);
 
-    Mono<PetDTO> savePet(PetDTO dto);
+    Mono<PetDTO> createPet(PetDTO dto);
 
     Mono<PetDTO> updatePet(String id, PetDTO dto);
 

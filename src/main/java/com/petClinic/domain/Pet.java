@@ -1,5 +1,6 @@
 package com.petClinic.domain;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +14,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document
+@Document(collection = "pets")
 public class Pet {
 
     @Id
     private String id;
 
+    @NotBlank
     private String name;
 
     private String petType;
